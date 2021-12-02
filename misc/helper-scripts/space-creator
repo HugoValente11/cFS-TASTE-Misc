@@ -115,6 +115,13 @@ DeploymentView.aadl:	Default_Deployment.aadl
 DataView.aadl: \${ASN1_FILES}
 	taste-update-data-view \$^
 
+cfs: InterfaceView.aadl DataView.aadl DeploymentView.aadl
+	rm -rf work/
+	mkdir -p work/cfs
+	cp -af ~/Desktop/cfs/ work/
+	kazoo --gw --glue
+	cd work/cfs && make prep && make && make install && cd build/exe/cpu1 && sudo ./core-cpu1
+
 clean:
 	rm -rf work/build work/dataview/built
 	rm -f *.aadl  # Interface and Deployment views in AADL are generated

@@ -267,5 +267,13 @@ Interface_Priority      : aadlinteger applies to (subprogram);
 Interface_Cyclic_Offset : aadlinteger applies to (subprogram);
 Interface_Stack_Size    : aadlinteger applies to (subprogram);
 
+-- AURORA properties
+Startup_Priority : aadlinteger applies to (system);
+Communication_Layer : aadlstring applies to (subprogram);
+Archetype_Name : list of aadlstring applies to (system, subprogram);
+Library_Name : list of aadlstring applies to (subprogram);
+Library_Reference_Name : aadlstring applies to (package);
+Library_Reference_Path : aadlstring applies to (package);
+
 
 end Taste;
