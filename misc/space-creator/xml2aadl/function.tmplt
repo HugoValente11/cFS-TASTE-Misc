@@ -91,6 +91,12 @@ FEATURES
 {% for ifprop in iface.properties %}
       {% if ifprop.name == "Taste::InheritPI" %}
       Taste::labelInheritance        => "{{ ifprop.value }}";
+      {% elif ifprop.name == "MessageID" %}
+      Taste::MessageID => "{{ ifprop.value }}";
+      {% elif ifprop.name == "MessageContent" %}
+      Taste::MessageContent => "{{ ifprop.value }}";
+      {% elif ifprop.name == "MessageSize" %}
+      Taste::MessageSize => "{{ ifprop.value }}";
       {% elif ifprop.name == "Taste::Autonamed" %}
       {% elif ifprop.name == "Taste::InnerCoordinates" %}
       {% elif ifprop.name == "Taste::RootCoordinates" %}
@@ -128,12 +134,6 @@ FEATURES
       Taste::EventType => "{{ attr.value }}";
       {% elif attr.name == "EventInfo" %}
       Taste::EventInfo => "{{ attr.value }}";
-      {% elif attr.name == "MessageID" %}
-      Taste::MessageID => "{{ attr.value }}";
-      {% elif attr.name == "MessageContent" %}
-      Taste::MessageContent => "{{ attr.value }}";
-      {% elif attr.name == "MessageSize" %}
-      Taste::MessageSize => "{{ attr.value }}";
       {% else %}
       -- Unrecognized property: {{ attr.name }} => {{ attr.value }}
       {% endif %}      
@@ -151,6 +151,11 @@ PROPERTIES
    TASTE::Is_Component_Type => {% if attr.value == "YES" %}true{% else %}false{% endif %};
    {% elif attr.name == "instance_of" and attr.value != "" %}
    TASTE_IV_Properties::is_instance_of => "{{ attr.value }}";
+   {% elif attr.name == "needsDataStore" and attr.value != "" %}
+   Taste::Needs_datastore => "{{ attr.value }}";
+   {% elif attr.name == "DataStoreBlockSize" and attr.value != "" %}
+   Taste::Datastore_size => "{{ attr.value }}";
+   
    {% else %}
    -- unsupported property found: name: "{{ attr.name }}"  value: "{{ attr.value }}"
    {% endif %}
