@@ -23,6 +23,7 @@ prop                        :       |_ Instance of property
 prop.name                   :           |_ Name of property
 prop.value                  :           |_ Value of property
 {% endcomment %}
+
 {% for allattr in iface.attributes %}
 {% if allattr.name == "name" %}
 {% with allattr.value as name %}

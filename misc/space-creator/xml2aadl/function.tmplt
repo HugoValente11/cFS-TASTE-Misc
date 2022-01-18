@@ -120,9 +120,26 @@ FEATURES
       Taste::Interface_Priority      => {{ attr.value }};
       {% elif attr.name == "dispatch_offset" %}
       Taste::Interface_Cyclic_Offset => {{ attr.value }};
+      {% elif attr.name == "EventName" %}
+      Taste::EventName => "{{ attr.value }}";
+      {% elif attr.name == "EventID" %}
+      Taste::EventID => "{{ attr.value }}";
+      {% elif attr.name == "EventType" %}
+      Taste::EventType => "{{ attr.value }}";
+      {% elif attr.name == "EventInfo" %}
+      Taste::EventInfo => "{{ attr.value }}";
+      {% elif attr.name == "MessageID" %}
+      Taste::MessageID => "{{ attr.value }}";
+      {% elif attr.name == "MessageContent" %}
+      Taste::MessageContent => "{{ attr.value }}";
+      {% elif attr.name == "MessageSize" %}
+      Taste::MessageSize => "{{ attr.value }}";
       {% else %}
       -- Unrecognized property: {{ attr.name }} => {{ attr.value }}
       {% endif %}      
+{% endfor %}
+{% for conn in Connections %}
+   -- Taste::Target_PI => "{{conn.target}}";
 {% endfor %}
    };
 {% endfor %}
@@ -157,6 +174,7 @@ SUBCOMPONENTS
    };
    {% endfor %}
 {% if func.connections|length > 0 %}
+------ Is this the one ---------
 CONNECTIONS
 {% for conn in func.connections %}
  {% if conn.siIsRequired %}
@@ -164,9 +182,9 @@ CONNECTIONS
  {% else %}
    {{ conn.source }}_PI_{{ conn.siName }}_{{ conn.target }}_RI_{{ conn.tiName }} : SUBPROGRAM ACCESS {{ conn.target }}.PI_{{ conn.tiName }} -> {% if conn.source != func.name %}{{ conn.source }}.RI_{% else %}PI_{% endif %}{{ conn.siName }};
  {% endif %}
+---------- Why you work? ---------
 {% endfor %}
 {% endif %}
 {% endif %}
 END {{ func.name }}.others;
-
 END interfaceview::IV::{{ func.path|join:"::" }};

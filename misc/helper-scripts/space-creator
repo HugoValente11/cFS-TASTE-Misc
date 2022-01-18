@@ -122,6 +122,10 @@ cfs: InterfaceView.aadl DataView.aadl DeploymentView.aadl
 	kazoo --gw --glue
 	cd work/cfs && make prep && make && make install && cd build/exe/cpu1 && sudo ./core-cpu1
 
+cfs_skeletons: InterfaceView.aadl DataView.aadl DeploymentView.aadl
+	rm -rf work/
+	kazoo --gw --glue
+
 clean:
 	rm -rf work/build work/dataview/built
 	rm -f *.aadl  # Interface and Deployment views in AADL are generated

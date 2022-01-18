@@ -275,5 +275,20 @@ Library_Name : list of aadlstring applies to (subprogram);
 Library_Reference_Name : aadlstring applies to (package);
 Library_Reference_Path : aadlstring applies to (package);
 
+-- CFS properties
+Function_priority : aadlinteger applies to (system);
+-- Event properties
+EventName : aadlstring applies to (subprogram);
+EventID : aadlstring applies to (subprogram);
+EventType : aadlstring applies to (subprogram);
+EventInfo: aadlstring applies to (subprogram);
+
+Target_PI: aadlstring applies to (subprogram);
+-- Message properties
+MessageContent : aadlstring applies to (subprogram);
+MessageID : aadlstring applies to (subprogram);
+MessageSize : aadlstring applies to (subprogram);
+
+
 
 end Taste;
