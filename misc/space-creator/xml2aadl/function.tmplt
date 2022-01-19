@@ -151,7 +151,7 @@ PROPERTIES
    TASTE::Is_Component_Type => {% if attr.value == "YES" %}true{% else %}false{% endif %};
    {% elif attr.name == "instance_of" and attr.value != "" %}
    TASTE_IV_Properties::is_instance_of => "{{ attr.value }}";
-   {% elif attr.name == "needsDataStore" and attr.value != "" %}
+   {% elif attr.name == "data_store" and attr.value != "" %}
    Taste::Needs_datastore => "{{ attr.value }}";
    {% elif attr.name == "DataStoreBlockSize" and attr.value != "" %}
    Taste::Datastore_size => "{{ attr.value }}";
