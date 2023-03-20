@@ -213,6 +213,8 @@ RCMoperationKind_list: type enumeration
    transaction,
    barrier,
    unprotected,
+   events,
+   message,
    deferred,
    immediate,
    any);
@@ -290,6 +292,7 @@ Target_PI: aadlstring applies to (subprogram);
 MessageContent : aadlstring applies to (subprogram);
 MessageID : aadlstring applies to (subprogram);
 MessageSize : aadlstring applies to (subprogram);
+StoreMessage: aadlstring applies to (subprogram);
 
 -- Data store properties
 Needs_datastore : aadlstring applies to (system);

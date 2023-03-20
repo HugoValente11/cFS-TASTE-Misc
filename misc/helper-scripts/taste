@@ -98,6 +98,25 @@ work/glue_built:	InterfaceView.aadl DeploymentView.aadl DataView.aadl Concurrenc
 	$(KAZOO) -p --glue --gw -o work
 	touch $@
 
+cfs: cfs_skeletons
+	# rm -rf work/
+	mkdir -p work/cfs
+	cp -af ~/Desktop/cfs/ work/
+	kazoo --gw --glue
+	cd work/cfs && make prep && make && make install && cd build/exe/cpu1 && sudo ./core-cpu1
+
+cfs_skeletons: work/skeletons_built DeploymentView.aadl
+	# rm -rf work/
+	kazoo --gw --glue
+	mkdir -p work/cfs/libs/dataview_lib/fsw/public_inc
+	mkdir -p work/cfs/libs/dataview_lib/fsw/src
+	cp work/dataview/C/*.h work/cfs/libs/dataview_lib/fsw/public_inc
+	cp work/dataview/C/*.c work/cfs/libs/dataview_lib/fsw/src
+    asn2dataModel ${ASN1_FILES} $(MAKE) -toQGenC -o work/cfs/libs/dataview_lib/fsw/src
+	make -C work aadl2glueC
+    $(MAKE)
+    Is this the correct file to change?
+
 clean:
 	rm -rf work/build
 	rm -f work/glue_built work/skeletons_built

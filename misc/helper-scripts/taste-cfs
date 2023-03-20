@@ -1,7 +1,7 @@
 #!/bin/bash
 # call with "reset" to regenerate the Makefile in the current project folder
-SPACECREATOR=spacecreator.AppImage
-# SPACECREATOR=~/Desktop/IVEditor/IVeditor
+# SPACECREATOR=spacecreator.AppImage
+SPACECREATOR=~/Desktop/IVEditor/IVeditor
 
 if [ -t 1 ] ; then
     COLORON="\e[1m\e[32m"
@@ -21,7 +21,8 @@ ERROR="${REDCOLORON}[ERROR]${COLOROFF}"
 run_space_creator () {
     echo -e "${INFO} Running Space Creator with $1"
     # $SPACECREATOR
-    $SPACECREATOR $1 interfaceview.xml
+    # $SPACECREATOR $1 interfaceview.xml
+    $SPACECREATOR
 
 }
 
