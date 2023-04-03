@@ -215,6 +215,7 @@ RCMoperationKind_list: type enumeration
    unprotected,
    events,
    message,
+   component_management,
    deferred,
    immediate,
    any);
@@ -286,7 +287,6 @@ EventID : aadlstring applies to (subprogram);
 EventType : aadlstring applies to (subprogram);
 EventInfo: aadlstring applies to (subprogram);
 
-Target_PI: aadlstring applies to (subprogram);
 
 -- Message properties
 MessageContent : aadlstring applies to (subprogram);
@@ -298,5 +298,7 @@ StoreMessage: aadlstring applies to (subprogram);
 Needs_datastore : aadlstring applies to (system);
 Datastore_size : aadlstring applies to (system);
 
+-- Component management
+Target_PI: aadlstring applies to (subprogram);
 
 end Taste;

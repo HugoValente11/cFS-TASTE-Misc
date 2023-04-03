@@ -151,7 +151,7 @@ FEATURES
       {% endif %}      
 {% endfor %}
 {% for conn in Connections %}
-   -- Taste::Target_PI => "{{conn.target}}";
+   Taste::Target_PI => "{{conn.source}}";
 {% endfor %}
    };
 {% endfor %}
