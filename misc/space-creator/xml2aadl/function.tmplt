@@ -169,6 +169,8 @@ PROPERTIES
    Taste::Datastore_size => "{{ attr.value }}";
    {% elif attr.name == "startup_priority" and attr.value != "" %}
    Taste::Startup_Priority => {{ attr.value }};
+   {% elif attr.name == "fdir" and attr.value != "" %}
+   Taste::FDIR => "{{ attr.value }}";
 
 
    

@@ -301,4 +301,7 @@ Datastore_size : aadlstring applies to (system);
 -- Component management
 Target_PI: aadlstring applies to (subprogram);
 
+-- Fault detection isolation and recovery
+FDIR : aadlstring applies to (system);
+
 end Taste;
