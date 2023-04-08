@@ -150,10 +150,17 @@ FEATURES
       -- Unrecognized property: {{ attr.name }} => {{ attr.value }}
       {% endif %}      
 {% endfor %}
+{% if Connections|length > 0 %}
 {% for conn in Connections %}
+{% if conn.target == func.name %}
+{% if conn.connectionKind == "Component_Management" %}
    Taste::Target_PI => "{{conn.source}}";
+{% endif %}
+{% endif %}
 {% endfor %}
+{% endif %}
    };
+
 {% endfor %}
 PROPERTIES
 {% for attr in func.attributes %}
