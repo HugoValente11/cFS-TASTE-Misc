@@ -95,7 +95,8 @@ work/glue_coverage:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
 	touch \$@
 
 InterfaceView.aadl:	interfaceview.xml
-	\$(SPACECREATOR) --aadlconverter  -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
+	~/Desktop/IVEditor/aadlconverter  -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
+	#\$(SPACECREATOR) --aadlconverter  -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
 
 %: %.dv.xml Default_Deployment.aadl
 	# Build using deployment view \$^
