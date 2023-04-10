@@ -152,10 +152,8 @@ FEATURES
 {% endfor %}
 {% if Connections|length > 0 %}
 {% for conn in Connections %}
-{% if conn.target == func.name %}
-{% if conn.connectionKind == "Component_Management" %}
-   Taste::Target_PI => "{{conn.source}}";
-{% endif %}
+{% if conn.target == func.name and conn.connectionKind == "Component_Management" and iface.name == conn.siName %}
+      Taste::Target_PI => "{{conn.source}}";
 {% endif %}
 {% endfor %}
 {% endif %}
