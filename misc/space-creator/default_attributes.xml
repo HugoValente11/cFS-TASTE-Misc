@@ -6,16 +6,9 @@
             </Function>
         </Scopes>
         <Type>
-            <Enumeration defaultValue="SDL">
-                <Entry value="Ada"/>
-                <Entry value="CPP"/>
+            <Enumeration defaultValue="C">
                 <Entry value="C"/>
-                <Entry value="GUI"/>
-                <Entry value="SDL"/>
-                <Entry value="Simulink"/>
-                <Entry value="Blackbox_Device"/>
-                <Entry value="VHDL"/>
-                <Entry value="Pseudo function"/>
+                <Entry value="QGenC"/>
             </Enumeration>
         </Type>
     </Attr>
@@ -28,41 +21,6 @@
         <Type>
             <String validator="[a-zA-Z0-9_]+"/>
         </Type>
-    </Attr>
-    <Attr label="Function Type" name="is_type">
-        <Type>
-            <Enumeration defaultValue="NO">
-                <Entry value="YES"/>
-                <Entry value="NO"/>
-            </Enumeration>
-        </Type>
-        <Scopes>
-            <Function/>
-        </Scopes>
-    </Attr>
-    <Attr label="Language" name="type_language">
-        <Scopes>
-            <Function>
-                <AttrValidator name="is_type" value="YES"/>
-            </Function>
-        </Scopes>
-        <Type>
-            <Enumeration defaultValue="SDL">
-                <Entry value="Ada"/>
-                <Entry value="CPP"/>
-                <Entry value="SDL"/>
-            </Enumeration>
-        </Type>
-    </Attr>
-    <Attr label="Instance of" name="instance_of">
-        <Type>
-            <String validator="[a-zA-Z0-9_]+"/>
-        </Type>
-        <Scopes>
-            <Function>
-                <AttrValidator name="is_type" value="NO"/>
-            </Function>
-        </Scopes>
     </Attr>
     <Attr label="Period (in ms)" name="period">
         <Type>
