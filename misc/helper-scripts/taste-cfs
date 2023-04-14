@@ -78,6 +78,11 @@ skeletons:
 work/skeletons_built:	InterfaceView.aadl DataView.aadl
 	\$(KAZOO) --gw -o work
 	\$(MAKE) -C work dataview
+	mkdir -p work/cfs/libs/dataview_lib/fsw/public_inc
+	mkdir -p work/cfs/libs/dataview_lib/fsw/src
+	cp work/dataview/C/*.h work/cfs/libs/dataview_lib/fsw/public_inc
+	cp work/dataview/C/*.c work/cfs/libs/dataview_lib/fsw/src
+	asn2dataModel \${ASN1_FILES} -toQGenC -o work/cfs/libs/dataview_lib/fsw/src
 	touch \$@
 
 work/glue_release:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
