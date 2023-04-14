@@ -31,10 +31,10 @@ fi
 if [[ -f Makefile && $(grep KAZOO Makefile) != "" ]]
 then
     # Text source code can be edited directly from within space creator
-    cd work/"${2,,}"/"$1"
+    cd work/cfs/apps/"${2,,}"_app/fsw
     if [[ $1 == "C" ]]
     then
-        $SPACECREATOR -client src/"${2,,}".c
+        $SPACECREATOR -client src/"${2,,}"_app_user.c
     elif [[ $1 == "Ada" ]]
     then
         $SPACECREATOR -client src/"${2,,}".adb
