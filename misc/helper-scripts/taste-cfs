@@ -1,7 +1,7 @@
 #!/bin/bash
 # call with "reset" to regenerate the Makefile in the current project folder
 # SPACECREATOR=spacecreator.AppImage
-SPACECREATOR=~/Desktop/IVEditor/IVeditor
+SPACECREATOR=$HOME/project/spacecreatorenv6/spacecreator.AppDir/bin/qtcreator
 
 if [ -t 1 ] ; then
     COLORON="\e[1m\e[32m"
@@ -21,8 +21,9 @@ ERROR="${REDCOLORON}[ERROR]${COLOROFF}"
 run_space_creator () {
     echo -e "${INFO} Running Space Creator with $1"
     # $SPACECREATOR
+    $SPACECREATOR $1  -color blue
     # $SPACECREATOR $1 interfaceview.xml
-    $SPACECREATOR
+    # $SPACECREATOR 
 
 }
 
@@ -64,7 +65,7 @@ coverage: work/glue_coverage
 	\$(MAKE) -C work
 
 run:
-	\$(MAKE) -C work run
+	cd work/cfs/build/exe/cpu1 && sudo ./core-cpu1
 
 # Simulation target (experimental)
 simu:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
@@ -95,8 +96,7 @@ work/glue_coverage:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
 	touch \$@
 
 InterfaceView.aadl:	interfaceview.xml
-	~/Desktop/IVEditor/aadlconverter  -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
-	#\$(SPACECREATOR) --aadlconverter  -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
+	/home/taste/project/spacecreatorenv6/spacecreator.AppDir/bin/aadlconverter -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
 
 %: %.dv.xml Default_Deployment.aadl
 	# Build using deployment view \$^
@@ -111,7 +111,7 @@ interfaceview: Default_Deployment.aadl
 
 Default_Deployment.aadl:	interfaceview.xml
 	# Create/update a default deployment view for Linux target, if none other is provided
-	\$(SPACECREATOR) --aadlconverter  -o \$^ -t \$(shell taste-config --prefix)/share/xml2dv/interfaceview.tmplt -x \$@ || exit 1
+	/home/taste/project/spacecreatorenv6/spacecreator.AppDir/bin/aadlconverter -o \$^ -t \$(shell taste-config --prefix)/share/xml2dv/interfaceview.tmplt -x \$@ || exit 1
 	rsync --checksum \$@ DeploymentView.aadl
 
 DeploymentView.aadl:	Default_Deployment.aadl
@@ -120,15 +120,13 @@ DataView.aadl: \${ASN1_FILES}
 	taste-update-data-view \$^
 
 cfs: cfs_skeletons
-	# rm -rf work/
 	mkdir -p work/cfs
 	cp -af ~/Desktop/cfs/ work/
-	kazoo --gw --glue
-	cd work/cfs && make prep && make && make install && cd build/exe/cpu1 && sudo ./core-cpu1
+	\$(KAZOO) --gw --glue
+	cd work/cfs && make prep && make && make install
 
-cfs_skeletons: work/skeletons_built DeploymentView.aadl
-	# rm -rf work/
-	kazoo --gw --glue
+cfs_skeletons: work/skeletons_built DeploymentView.aadl InterfaceView.aadl
+	\$(KAZOO) --gw --glue
 	mkdir -p work/cfs/libs/dataview_lib/fsw/public_inc
 	mkdir -p work/cfs/libs/dataview_lib/fsw/src
 	cp work/dataview/C/*.h work/cfs/libs/dataview_lib/fsw/public_inc
