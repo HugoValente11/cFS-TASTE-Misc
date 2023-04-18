@@ -21,7 +21,7 @@ ERROR="${REDCOLORON}[ERROR]${COLOROFF}"
 taste-xml-to-aadl || exit 1
 
 
-if [[ $1 != "C" && $1 != "Ada" && $1 != "SDL" && $1 != "CPP" && $1 != "GUI" && "$1" != "Blackbox_Device" ]]
+if [[ $1 != "C" && $1 != "Ada" && $1 != "SDL" && $1 != "CPP" && $1 != "GUI" && "$1" != "Blackbox_Device" && "$1" != "QGenC" ]]
 then
     echo  -e "${ERROR} First argument must be C, CPP, Ada, SDL, GUI or Blackbox_C"
     exit 1
