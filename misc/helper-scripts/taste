@@ -126,7 +126,7 @@ DataView.aadl: \${ASN1_FILES}
 
 cfs: cfs_skeletons
 	mkdir -p work/cfs
-	cp -af ~/Desktop/cfs/ work/
+	cp -af ~/tool-src/TASTE-cFS-Runtime/* work/cfs/
 	\$(KAZOO) --gw --glue
 	cd work/cfs && make prep && make && make install
 
