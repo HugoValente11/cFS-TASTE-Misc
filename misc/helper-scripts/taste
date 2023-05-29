@@ -1,4 +1,8 @@
-#!/bin/bash -e
+#!/bin/bash
+# call with "reset" to regenerate the Makefile in the current project folder
+# SPACECREATOR=spacecreator.AppImage
+SPACECREATOR=$HOME/project/spacecreatorenv6/spacecreator.AppDir/bin/qtcreator
+
 if [ -t 1 ] ; then
     COLORON="\e[1m\e[32m"
     REDCOLORON="\e[1m\e[31m"
@@ -8,169 +12,284 @@ else
     REDCOLORON=""
     COLOROFF=""
 fi
+echo -e "Welcome to ${COLORON}TASTE${COLOROFF}"
+
 INFO="${COLORON}[INFO]${COLOROFF}"
 ERROR="${REDCOLORON}[ERROR]${COLOROFF}"
 
-# check if there is a space creator interface view, in which case invoke
-# space creator script and quit this one
-if [ -f interfaceview.xml ]
-then
-    space-creator "$@"
-    exit $?
-fi
 
-# Check if there is a legacy interface view in the current folder
-# and if the init command is not invoked (to create initial Makefile)
-if [ -f InterfaceView.aadl ] && [ "$1" != "init" ]
-then
-    echo -e "Welcome to ${COLORON}TASTE${COLOROFF}"
+run_space_creator () {
+    echo -e "${INFO} Running Space Creator with $1"
+    # $SPACECREATOR
+    $SPACECREATOR $1  -color blue
+    # $SPACECREATOR $1 interfaceview.xml
+    # $SPACECREATOR 
 
-    echo -e "${INFO} Opening TASTE project in current folder"
-    echo -e "${INFO} This project is using the legacy TASTE tools which will"
-    echo -e "${INFO} soon be deprecated. Consider upgrading by typing:"
-    echo -e "${INFO}    $ taste-upgrade-to-space-creator"
-    INTERFACEVIEW=InterfaceView.aadl
+}
 
-    # If there is no deployment view, only load interface view
-    EXTRA_CMD=
-    if [ ! -f DeploymentView.aadl ]
-    then
-        EXTRA_CMD+=' --load-interface-view InterfaceView.aadl ' 
-        EXTRA_CMD+=" --aadl-library $(taste-config --prefix)/share/ocarina/AADLv2/ocarina_components.aadl "
-    else
-        # Update path to Ocarina Components in the deployment view
-        sed -i "s,HWLibraries.*,HWLibraries => (\"$(taste-config --prefix)/share/ocarina/AADLv2/ocarina_components.aadl\");," DeploymentView.aadl 
-        EXTRA_CMD+=' --load-deployment-view DeploymentView.aadl '
-    fi
-else
-    # new projects must use space creator
-    space-creator "$@"
-    exit $?
+generate_makefile() {
+    echo -e "${INFO} Creating project Makefile"
+    echo "KAZOO?=kazoo
+SPACECREATOR?=spacecreator.AppImage
 
-    if [ "$1" == "init" ]
-    then
-        new_folder="$2"
-    else
-        echo -e "${INFO} A new TASTE project folder will be created (use Ctrl-C to cancel)"
-        read -p "Please enter a name for the new project folder: " new_folder
-    fi
-    if [ "$new_folder" != "" ]
-    then
-        if [ -d "$new_folder" ]
-        then
-            echo -e "${ERROR} A folder with that name already exists"
-            exit 1
-        else
-            mkdir "$new_folder"
-            cd "$new_folder"
-            touch InterfaceView.aadl
-        fi
-    else
-        new_folder=.
-    fi
-    echo 'KAZOO?=kazoo
 # Here you can specify custom compiler/linker flags, and add folders containing
 # external code you want to compile and link for a specific partition.
 # Use upper case for the partition name:
+#
 # export <PARTITIONNAME>_USER_CFLAGS=...
 # export <PARTITIONNAME>_USER_LDFLAGS=...
 # export <PARTITIONNAME>_EXTERNAL_SOURCE_PATH=
 
-all:	c
+# If you need to reset this Makefile to its original state, run:
+# $ space-creator reset
 
-c:	work/glue_built
-	$(MAKE) -C work
+# Get the list of ASN.1 files from Space Creator project file:
+DISTFILES=\$(shell qmake $PROJECT_FILE -o /tmp/null 2>&1)
+ASN1_FILES=\$(shell find \${DISTFILES} 2>/dev/null | egrep '\.asn\$\$|\.asn1\$\$')
+
+all:	release
+
+release:	work/glue_release
+	rm -rf work/glue_debug
+	rm -rf work/glue_coverage
+	\$(MAKE) -C work
+
+debug:	work/glue_debug
+	rm -rf work/glue_release
+	rm -rf work/glue_coverage
+	\$(MAKE) -C work
+
+coverage: work/glue_coverage
+	rm -rf work/glue_release
+	rm -rf work/glue_debug
+	\$(MAKE) -C work
+
+run:
+	cd work/cfs/build/exe/cpu1 && sudo ./core-cpu1
 
 # Simulation target (experimental)
-simu:	InterfaceView.aadl DeploymentView.aadl DataView.aadl ConcurrencyView_Properties.aadl
-	$(KAZOO) -t SIMU --glue --gw
-	$(MAKE) -C work
+simu:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
+	\$(KAZOO) -t SIMU --glue --gw
+	\$(MAKE) -C work
 
 skeletons:
-	$(MAKE) work/skeletons_built
+	\$(MAKE) work/skeletons_built
 
 work/skeletons_built:	InterfaceView.aadl DataView.aadl
-	$(KAZOO) --gw -o work
-	$(MAKE) -C work dataview
-	touch $@
-
-work/glue_built:	InterfaceView.aadl DeploymentView.aadl DataView.aadl ConcurrencyView_Properties.aadl
-	$(KAZOO) -p --glue --gw -o work
-	touch $@
-
-cfs: cfs_skeletons
-	# rm -rf work/
-	mkdir -p work/cfs
-	cp -af ~/Desktop/cfs/ work/
-	kazoo --gw --glue
-	cd work/cfs && make prep && make && make install && cd build/exe/cpu1 && sudo ./core-cpu1
-
-cfs_skeletons: work/skeletons_built DeploymentView.aadl
-	# rm -rf work/
-	kazoo --gw --glue
+	\$(KAZOO) --gw -o work
+	\$(MAKE) -C work dataview
 	mkdir -p work/cfs/libs/dataview_lib/fsw/public_inc
 	mkdir -p work/cfs/libs/dataview_lib/fsw/src
 	cp work/dataview/C/*.h work/cfs/libs/dataview_lib/fsw/public_inc
 	cp work/dataview/C/*.c work/cfs/libs/dataview_lib/fsw/src
-    asn2dataModel ${ASN1_FILES} $(MAKE) -toQGenC -o work/cfs/libs/dataview_lib/fsw/src
+	asn2dataModel \${ASN1_FILES} -toQGenC -o work/cfs/libs/dataview_lib/fsw/src
+	touch \$@
+
+work/glue_release:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
+	sed -i 's/CoverageEnabled => true/CoverageEnabled => false/g' DeploymentView.aadl || :
+	\$(KAZOO) -p --glue --gw -o work
+	touch \$@
+
+work/glue_debug:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
+	sed -i 's/CoverageEnabled => true/CoverageEnabled => false/g' DeploymentView.aadl || :
+	\$(KAZOO) --debug -p --glue --gw -o work
+	touch \$@
+
+work/glue_coverage:	InterfaceView.aadl DeploymentView.aadl DataView.aadl
+	sed -i 's/CoverageEnabled => false/CoverageEnabled => true/g' DeploymentView.aadl || :
+	\$(KAZOO) --debug -p --glue --gw -o work
+	touch \$@
+
+InterfaceView.aadl:	interfaceview.xml
+	/home/taste/project/spacecreatorenv6/spacecreator.AppDir/bin/aadlconverter -o \$^ -t \$(shell taste-config --prefix)/share/xml2aadl/interfaceview.tmplt -x \$@
+
+%: %.dv.xml Default_Deployment.aadl
+	# Build using deployment view \$^
+	@# We must update the .aadl only if the dv.xml file has changed (more recent timestamp)
+	if [ \$< -nt \$@.aadl ]; then \
+	\$(SPACECREATOR) --dvconverter -o \$< -t  \$(shell taste-config --prefix)/share/dv2aadl/deploymentview.tmplt -x \$@.aadl; fi;
+	rsync --checksum \$@.aadl DeploymentView.aadl
+
+interfaceview: Default_Deployment.aadl
+	# Build when no deployment view is open - use default
+	rsync --checksum \$< DeploymentView.aadl
+
+Default_Deployment.aadl:	interfaceview.xml
+	# Create/update a default deployment view for Linux target, if none other is provided
+	/home/taste/project/spacecreatorenv6/spacecreator.AppDir/bin/aadlconverter -o \$^ -t \$(shell taste-config --prefix)/share/xml2dv/interfaceview.tmplt -x \$@ || exit 1
+	rsync --checksum \$@ DeploymentView.aadl
+
+DeploymentView.aadl:	Default_Deployment.aadl
+
+DataView.aadl: \${ASN1_FILES}
+	taste-update-data-view \$^
+
+cfs: cfs_skeletons
+	mkdir -p work/cfs
+	cp -af ~/Desktop/cfs/ work/
+	\$(KAZOO) --gw --glue
+	cd work/cfs && make prep && make && make install
+
+cfs_skeletons: work/skeletons_built DeploymentView.aadl InterfaceView.aadl
+	\$(KAZOO) --gw --glue
+	mkdir -p work/cfs/libs/dataview_lib/fsw/public_inc
+	mkdir -p work/cfs/libs/dataview_lib/fsw/src
+	cp work/dataview/C/*.h work/cfs/libs/dataview_lib/fsw/public_inc
+	cp work/dataview/C/*.c work/cfs/libs/dataview_lib/fsw/src
+	asn2dataModel \${ASN1_FILES} -toQGenC -o work/cfs/libs/dataview_lib/fsw/src
 	make -C work aadl2glueC
-    $(MAKE)
-    Is this the correct file to change?
 
 clean:
-	rm -rf work/build
-	rm -f work/glue_built work/skeletons_built
-	find work -type d -name "wrappers" -exec rm -rf {} +
-	find work -type d -name "*_GUI" -exec rm -rf {} +
+	rm -rf work/build work/dataview/built
+	rm -f *.aadl  # Interface and Deployment views in AADL are generated
+	rm -f work/glue_release work/glue_debug work/glue_coverage work/skeletons_built
+	find work -type d -name \"wrappers\" -exec rm -rf {} +
+	find work -type d -name \"*_GUI\" -exec rm -rf {} +
 
-.PHONY: clean skeletons c simu
-' > Makefile
-    # Create mandatory ConcurrencyView_Properties.aadl for kazoo
-    if [ ! -f ConcurrencyView_Properties.aadl ]
+.PHONY: clean release debug coverage skeletons simu run
+" > Makefile
+}
+
+generate_pro_file() {
+    echo -e "${INFO} Creating Space Creator project file"
+    # Create Space Creator's project file
+    # the message($$DISTFILE) is used to display on screen the list
+    # of project files (to get the list of ASN.1 files for taste-update-dataview)
+    echo "TEMPLATE = lib
+CONFIG -= qt
+CONFIG += generateC
+
+DISTFILES += $PROJECT_NAME.asn
+DISTFILES += $PROJECT_NAME.acn
+DISTFILES += $PROJECT_NAME.msc
+DISTFILES += interfaceview.xml
+DISTFILES += work/binaries/*.msc
+DISTFILES += work/binaries/coverage/index.html
+DISTFILES += work/binaries/filters
+#include(handleAsn1AcnBuild.pri)
+include(work/taste.pro)
+message(\$\$DISTFILES)
+" > $PROJECT_FILE
+}
+
+generate_pro_user_file() {
+    # Create Qt Creator's XML Configuration file
+    echo -e "${INFO} Configuring the QtCreator Kit for the project"
+    # Define strings to create Spacecrator's .pro.user config file:
+    BUILD_DIRECTORY=$(pwd)
+    # The UUID are not random, they relate to the version of Qt creator
+    # The first one is in QtCreator.ini and generated by Qt Creator the first time it is executed
+    # or by default by the TASTE installer
+    UUID1=$(grep EnvironmentId $HOME/.config/QtProject/QtCreator.ini | cut -f 2 -d'{' | cut -f 1 -d '}')
+    UUID2="6d650885-2dda-4f6a-b4fa-1fabe64f392b"  # Kit of the AppImage
+    cp -f $(taste-config --prefix)/bin/space_creator_config.xml $PROJECT_FILE.user
+    sed -i "s,BUILD_DIRECTORY,$BUILD_DIRECTORY," $PROJECT_FILE.user
+    sed -i "s/UUID1/$UUID1/" $PROJECT_FILE.user
+    sed -i "s/UUID2/$UUID2/" $PROJECT_FILE.user
+}
+
+# To determine if we are in an existing project folder
+PROJECT_FILE=$(find *.pro 2>/dev/null)
+
+# If the project file already exist, directly run the gui
+if [ -f "$PROJECT_FILE" ]
+then
+    if [ "$1" != "reset" ]
     then
-        touch ConcurrencyView_Properties.aadl
-    fi
-    # If there is already a dataview, use it, otherwise create one
-    if [ ! -f DataView.aadl ]
-    then
-        echo -e "${INFO} Creating a default ASN.1 data model."
-        NONINTERACTIVE=1 taste-create-data-view
+        run_space_creator $PROJECT_FILE
+        exit $?
     else
-        echo -e "${INFO} Using existing DataView.aadl"
+        PROJECT_NAME=${PROJECT_FILE%.*}
+        generate_makefile
+        generate_pro_file
+        generate_pro_user_file
+        echo -e "${INFO} Done resetting all project configuration files"
+        exit 0
     fi
-    EXTRA_CMD+=' --load-interface-view InterfaceView.aadl ' 
-    EXTRA_CMD+=" --aadl-library $(taste-config --prefix)/share/ocarina/AADLv2/ocarina_components.aadl "
-
 fi
 
-# Add the data view
-EXTRA_CMD+=' --data-view DataView.aadl '
+# New project: was the script called with "init" ( = don't run any gui just setup the project files)
+if [ "$1" == "init" ]
+then
+   # With "init", a folder (project name) should be given as parameter
+   new_folder="$2"
+else
+   # New project, interactive session: prompt user for project name
+   echo -e "${INFO} A new TASTE Space Creator project folder will be created (use Ctrl-C to cancel)"
+   read -p "Please enter a name for the new project folder: " new_folder
+fi
 
-# Add the components from the components library
-FIRST=1
-LIBDIR=$(taste-config --prefix)/share/components_library
-for each in $LIBDIR/*
-do
-    if [ $FIRST -eq 1 ]
+# Project folder must start with a letter
+if [[ "$new_folder" =~ ^[A-Za-z].* ]]
+then
+    if [ -d "$new_folder" ]
     then
-        EXTRA_CMD+='--edit-aadl '
+        echo -e "${ERROR} Aborting - a folder with that name already exists"
+        exit 1
     else
-        EXTRA_CMD+=,
+        mkdir "$new_folder"
+        cd "$new_folder"
+        touch InterfaceView.aadl
+        PROJECT_FILE="$new_folder".pro
+        PROJECT_NAME="$new_folder"
     fi
-    EXTRA_CMD+=$each/interfaceview.aadl
-    FIRST=0
-done
+else
+    echo -e "${ERROR} Aborting - The project name is invalid. Hint: first character shall be a letter."
+    exit 1
+fi
 
-EXTRA_CMD+=' --update-properties ConcurrencyView_Properties.aadl '
+
+generate_makefile
+generate_pro_file
+generate_pro_user_file
+
+# Create default work folder
+mkdir -p work/binaries
+touch work/taste.pro
+
+# Create empty MSC file
+echo "mscdocument $PROJECT_NAME /* MSC AND */;
+    language ASN.1;
+    data $PROJECT_NAME.asn;
+
+/* CIF MSCDOCUMENT (0, 0) (4200, 2300) */
+
+mscdocument Nominal /* MSC LEAF */;
+
+msc $PROJECT_NAME;
+endmsc;
+endmscdocument;
+endmscdocument;" > $PROJECT_NAME.msc
+
+# Create empty filter file for the MSC inner tracing tool
+echo "-- Add your filters here for the MSC tracing tool (list of instances and message names you don't want to trace)
+-- format of the file: one filter per line
+-- one line is either:
+--   input <name> to <function name>
+--      or
+--   instance <function name>
+" > work/binaries/filters
+
+# Create a default data view (use pre-made DataView.aadl to speed up)
+echo -e "${INFO} Creating a default ASN.1 data model."
+cp -f $(taste-config --prefix)/bin/space-creator-dataview.aadl DataView.aadl
+sed -i "s/MD5ACN/$MD5ACN/" DataView.aadl
+sed -i "s/MD5ASN/$MD5ASN/" DataView.aadl
+sed -i "s/PROJECTNAME/$PROJECT_NAME/" DataView.aadl
+NONINTERACTIVE=1 ONLY_ASN=1 taste-create-data-view "$PROJECT_NAME"
+
+# Create a default interface view
+echo "<InterfaceView asn1file=\"$PROJECT_NAME.asn\">
+<Comment name=\"Welcome to TASTE!\n============\n\nRight click to add a function, and use Ctrl-Click to connect functions together.\n\nYou can split the screen in multiple windows using Ctrl-E-3\">
+    <Property name=\"Taste::coordinates\" value=\"4800 5100 46100 20700\"/>
+</Comment>
+
+</InterfaceView>" > interfaceview.xml
 
 if [ "$1" == "init" ]
 then
-    echo -e "${INFO} Done. You can run 'taste' from the project folder to open the editor"
+    echo -e "${INFO} Done. You can run 'space-creator' from the project folder to open the editor"
     echo -e "${INFO} 'make skeletons' to create the skeletons or just 'make' to build everything."
 else
-    # Invoke the GUI from Ellidiss
-    echo -e "${INFO} Running "
-    echo "    TASTE $EXTRA_CMD
-"
-    TASTE $EXTRA_CMD
+    run_space_creator $PROJECT_FILE
 fi
